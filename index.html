@@ -406,6 +406,7 @@
           <button onclick="switchAdminTab('certif')">Certificazioni</button>
           <button onclick="switchAdminTab('quote')">Quote</button>
           <button onclick="switchAdminTab('assegna')">Assegnazioni</button>
+          <button onclick="switchAdminTab('utenti')">Utenti</button>
           <button onclick="switchAdminTab('settings')">Impostazioni</button>
         </div>
         <div class="admin-pane active" id="pane-codici"></div>
@@ -413,6 +414,7 @@
         <div class="admin-pane" id="pane-certif"></div>
         <div class="admin-pane" id="pane-quote"></div>
         <div class="admin-pane" id="pane-assegna"></div>
+        <div class="admin-pane" id="pane-utenti"></div>
         <div class="admin-pane" id="pane-settings"></div>
       </section>
 
@@ -453,7 +455,8 @@ var firebaseConfig = {
   projectId:         "fantamaury-francy",
   storageBucket:     "fantamaury-francy.firebasestorage.app",
   messagingSenderId: "183562257862",
-  appId:             "1:183562257862:web:2057679c1da2b66e375ec7"
+  appId:             "1:183562257862:web:2057679c1da2b66e375ec7",
+  measurementId:     "G-GBYNZ8J0MK"
 };
 
 /* =========================================================
@@ -1134,7 +1137,7 @@ function renderRules(){
     + '<p><b>Punti = prezzo pagato × quota dell\'evento</b>, assegnati solo quando l\'evento è "avvenuto". In caso di parità in classifica, vince chi ha speso meno crediti.</p></div>'
 
     + '<div class="card rule-sec"><h3>💶 Montepremio</h3>'
-    + '<p>Quota d\'iscrizione: <b>'+s.quotaIscrizione+' €</b> a testa (pagata a Matteo fuori app). Il montepremio totale si divide tra i primi 3: <b>'+perc.primo+'% / '+perc.secondo+'% / '+perc.terzo+'%</b>. L\'erogazione avviene fuori app.</p></div>'
+    + '<p>Quota d\'iscrizione: <b>'+s.quotaIscrizione+' €</b> a testa (versata fuori app). Il montepremio totale si divide tra i primi 3: <b>'+perc.primo+'% / '+perc.secondo+'% / '+perc.terzo+'%</b>. L\'erogazione avviene fuori app.</p></div>'
 
     + '<div class="card rule-sec"><h3>🛠️ Correzioni admin</h3>'
     + '<p>L\'admin può annullare un acquisto errato (con rimborso crediti), correggere una marcatura sbagliata e assegnare manualmente eventi rimasti liberi. Serve solo a tenere il gioco giusto e divertente.</p></div>';
@@ -1145,9 +1148,9 @@ function renderRules(){
    ========================================================= */
 function switchAdminTab(tab){
   STATE.currentAdminTab = tab;
-  var tabs = ["codici","eventi","certif","quote","assegna","settings"];
+  var tabs = ["codici","eventi","certif","quote","assegna","utenti","settings"];
   var btns = document.querySelectorAll(".admin-tabs button");
-  var labels = { codici:0, eventi:1, certif:2, quote:3, assegna:4, settings:5 };
+  var labels = { codici:0, eventi:1, certif:2, quote:3, assegna:4, utenti:5, settings:6 };
   btns.forEach(function(b,i){ b.classList.toggle("active", i === labels[tab]); });
   tabs.forEach(function(t){ $("pane-"+t).classList.toggle("active", t === tab); });
   renderAdmin();
@@ -1161,6 +1164,7 @@ function renderAdmin(){
     case "certif":   renderAdminCertif(); break;
     case "quote":    renderAdminQuote(); break;
     case "assegna":  renderAdminAssegna(); break;
+    case "utenti":   renderAdminUtenti(); break;
     case "settings": renderAdminSettings(); break;
   }
 }
@@ -1476,6 +1480,100 @@ function adminAssign(){
       } else { toast("Assegnato a "+u.nome+" 🎯", "ok"); renderAdminAssegna(); }
     });
   });
+}
+
+/* --- Gestione utenti + reset gioco --- */
+function renderAdminUtenti(){
+  var pane = $("pane-utenti");
+  var parts = Object.keys(STATE.users).filter(function(uid){ return STATE.users[uid].ruolo === RUOLO.PART; });
+
+  var html = ''
+    + '<div class="card">'
+    +   '<h3>⚠️ Reset gioco</h3>'
+    +   '<p class="muted">Elimina <b>tutti</b> i partecipanti, i codici invito e gli eventi. Mantiene le impostazioni e gli account admin. Serve per passare dai test alla partita vera con un click.</p>'
+    +   '<button class="btn danger" onclick="resetGame()">Reset totale gioco 🗑️</button>'
+    + '</div>'
+    + '<div class="section-title"><span>Partecipanti ('+parts.length+')</span><span class="line"></span></div>';
+
+  if(parts.length === 0){ html += '<div class="empty">Nessun partecipante registrato.</div>'; }
+  parts.sort(function(a,b){ return (STATE.users[a].nome||"").localeCompare(STATE.users[b].nome||""); });
+  parts.forEach(function(uid){
+    var u = STATE.users[uid];
+    var owned = 0;
+    for(var id in STATE.events){ if(STATE.events[id].acquistatoDa === uid) owned++; }
+    html += ''
+      + '<div class="list-item">'
+      +   '<div class="li-title">👤 '+escapeHtml(u.nome)+'</div>'
+      +   '<div class="li-meta">💳 '+u.creditiResidui+' crediti · 🎯 '+owned+' eventi acquistati</div>'
+      +   '<div class="li-actions">'
+      +     '<button class="btn small danger" onclick="deleteUser(\''+uid+'\')">Elimina (con pulizia)</button>'
+      +   '</div>'
+      + '</div>';
+  });
+  pane.innerHTML = html;
+}
+
+/* Elimina un partecipante con cascata pulita:
+   - libera i suoi eventi (tornano disponibili)
+   - rimuove le sue certificazioni ovunque
+   - rimette riutilizzabile il codice invito che aveva consumato
+   - elimina il record utente */
+function deleteUser(userId){
+  var u = STATE.users[userId];
+  if(!u){ return; }
+  if(u.ruolo === RUOLO.ADMIN){ toast("Non elimino un admin da qui", "err"); return; }
+  if(!confirm('Eliminare "'+u.nome+'"?\n\nI suoi eventi tornano disponibili, le sue certificazioni vengono rimosse e il suo codice invito torna riutilizzabile.')) return;
+
+  var updates = {};
+  for(var id in STATE.events){
+    var ev = STATE.events[id];
+    if(ev.acquistatoDa === userId){
+      updates['events/'+id+'/stato'] = STATO.DISP;
+      updates['events/'+id+'/acquistatoDa'] = null;
+      updates['events/'+id+'/prezzoPagato'] = null;
+      updates['events/'+id+'/quotaBloccata'] = null;
+      updates['events/'+id+'/timestampAcquisto'] = null;
+      updates['events/'+id+'/certificazioni'] = null;
+    } else if(ev.certificazioni && ev.certificazioni[userId]){
+      updates['events/'+id+'/certificazioni/'+userId] = null;
+    }
+  }
+  updates['users/'+userId] = null;
+
+  db.ref().update(updates).then(function(){
+    // rimetti riutilizzabile il codice invito consumato da questo utente
+    db.ref("inviteCodes").once("value").then(function(snap){
+      var codes = snap.val() || {};
+      var codeUpd = {};
+      for(var k in codes){
+        if(codes[k].usatoDa === userId){
+          codeUpd[k+'/usato'] = false;
+          codeUpd[k+'/usatoDa'] = null;
+          codeUpd[k+'/timestampUtilizzo'] = null;
+        }
+      }
+      var done = function(){ toast("Utente eliminato e dati puliti ✔", "ok"); renderAdminUtenti(); };
+      if(Object.keys(codeUpd).length){ db.ref("inviteCodes").update(codeUpd).then(done); }
+      else done();
+    });
+  }).catch(function(){ toast("Errore durante l'eliminazione", "err"); });
+}
+
+/* Reset totale: svuota eventi, codici e partecipanti; mantiene settings e admin */
+function resetGame(){
+  if(!confirm("RESET TOTALE\n\nElimina tutti i partecipanti, i codici invito e gli eventi.\nMantiene impostazioni e account admin.\n\nContinuare?")) return;
+  if(!confirm("Sei davvero sicuro? L'operazione è IRREVERSIBILE.")) return;
+
+  var updates = {};
+  updates['events'] = null;
+  updates['inviteCodes'] = null;
+  for(var uid in STATE.users){
+    if(STATE.users[uid].ruolo !== RUOLO.ADMIN) updates['users/'+uid] = null;
+  }
+  db.ref().update(updates).then(function(){
+    toast("Gioco resettato: pronto per la partita vera 🎉", "ok");
+    renderAdminUtenti();
+  }).catch(function(){ toast("Errore durante il reset", "err"); });
 }
 
 /* --- Impostazioni --- */
