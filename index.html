@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>FantaMaury&Francy 💍</title>
+<style>
+  /* =========================================================
+     FantaMaury&Francy — stile pastello festoso (tema matrimonio)
+     Palette e requisiti da specifiche funzionali v2.1
+     ========================================================= */
+  :root {
+    --bg:            #FDF9F5;  /* bianco crema */
+    --card:          #EDE0D3;  /* beige chiaro */
+    --card-alt:      #F6EEE6;  /* beige piu' chiaro per righe */
+    --accent:        #EAC7C5;  /* rosa cipria */
+    --accent-strong: #D99B98;  /* rosa cipria piu' carico per bordi */
+    --gold:          #D9B26B;  /* oro tenue */
+    --gold-strong:   #C79A4A;  /* oro per hover */
+    --text:          #4A3B32;  /* marrone scuro */
+    --text-soft:     #7A6A5E;  /* marrone tenue per label */
+    --success-bg:    #B7CBB0;
+    --success-text:  #33472E;
+    --error-bg:      #E3B3B0;
+    --error-text:    #6B2A26;
+    --cat-lavanda:   #D8CDEA;
+    --cat-azzurro:   #C9DCE5;
+    --cat-verde:     #C9DEC7;
+    --radius-card:   16px;
+    --radius-btn:    12px;
+    --radius-badge:  999px;
+    --shadow:        0 2px 8px rgba(74,59,50,0.10);
+    --tabbar-h:      64px;
+    --maxw:          540px;
+    --gap:           14px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.45;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .app-shell {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    min-height: 100vh;
+    position: relative;
+    padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
+  }
+
+  h1, h2, h3 { margin: 0 0 .4em 0; line-height: 1.2; }
+  h1 { font-size: 1.5rem; letter-spacing: .5px; }
+  h2 { font-size: 1.2rem; }
+  h3 { font-size: 1.02rem; }
+  p  { margin: 0 0 .7em 0; }
+  a  { color: var(--accent-strong); }
+
+  /* ---------- Header ---------- */
+  header.top {
+    position: sticky; top: 0; z-index: 20;
+    background: linear-gradient(180deg, var(--accent) 0%, var(--bg) 100%);
+    padding: 14px 16px 12px;
+    text-align: center;
+    border-bottom: 1px solid var(--accent-strong);
+  }
+  header.top .brand { font-size: 1.35rem; font-weight: 800; letter-spacing: .3px; }
+  header.top .sub   { font-size: .82rem; color: var(--text-soft); }
+  header.top .whoami{
+    font-size: .78rem; color: var(--text-soft);
+    display: flex; justify-content: center; gap: 10px; align-items: center;
+    margin-top: 4px; flex-wrap: wrap;
+  }
+  .logout-link {
+    background: none; border: none; color: var(--accent-strong);
+    font-size: .78rem; cursor: pointer; text-decoration: underline; padding: 0;
+  }
+
+  /* ---------- Views ---------- */
+  main { padding: var(--gap); }
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ---------- Banner asta ---------- */
+  .banner {
+    border-radius: var(--radius-btn);
+    padding: 10px 12px; margin-bottom: var(--gap);
+    font-size: .88rem; font-weight: 600; text-align: center;
+  }
+  .banner.open    { background: var(--success-bg); color: var(--success-text); }
+  .banner.closed  { background: var(--error-bg);   color: var(--error-text); }
+  .banner.waiting { background: var(--gold);        color: var(--text); }
+
+  /* ---------- Card ---------- */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-card);
+    padding: 14px;
+    box-shadow: var(--shadow);
+    margin-bottom: var(--gap);
+  }
+
+  /* ---------- Marketplace grid ---------- */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
+  @media (max-width: 400px) { .grid { grid-template-columns: 1fr; } }
+
+  .event-card {
+    background: var(--card);
+    border: 1.5px solid var(--accent);
+    border-radius: var(--radius-card);
+    padding: 12px;
+    box-shadow: var(--shadow);
+    display: flex; flex-direction: column; gap: 8px;
+    position: relative;
+  }
+  .event-card.done    { border-color: var(--success-text); background: var(--success-bg); }
+  .event-card.sold    { opacity: .55; filter: grayscale(35%); }
+  .event-emoji { font-size: 1.8rem; line-height: 1; }
+  .event-name  { font-weight: 700; font-size: .98rem; }
+  .cat-badge {
+    display: inline-block; font-size: .72rem; font-weight: 600;
+    padding: 2px 8px; border-radius: var(--radius-badge);
+    color: var(--text); align-self: flex-start;
+  }
+  .badges-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .badge {
+    font-size: .82rem; font-weight: 700;
+    padding: 3px 10px; border-radius: var(--radius-badge);
+    color: var(--text);
+  }
+  .badge.price { background: var(--gold); }
+  .badge.mult  { background: var(--accent); }
+  .badge.state { background: var(--card-alt); color: var(--text-soft); font-weight: 600; }
+  .badge.state.done { background: var(--success-text); color: #fff; }
+
+  /* ---------- Buttons ---------- */
+  button.cta, .btn {
+    font-family: inherit; font-size: 1rem; font-weight: 700;
+    border: none; border-radius: var(--radius-btn);
+    padding: 11px 14px; cursor: pointer; color: var(--text);
+    background: var(--gold); width: 100%;
+    transition: transform .05s ease, background .15s ease;
+  }
+  button.cta:hover, .btn:hover { background: var(--gold-strong); }
+  button.cta:active, .btn:active { transform: scale(.98); }
+  button.cta:disabled, .btn:disabled { background: #d9cec2; color: var(--text-soft); cursor: not-allowed; }
+  .btn.secondary { background: var(--accent); }
+  .btn.secondary:hover { background: var(--accent-strong); color: #fff; }
+  .btn.danger  { background: var(--error-bg); color: var(--error-text); }
+  .btn.small   { width: auto; padding: 7px 12px; font-size: .85rem; }
+  .btn.ghost   { background: transparent; border: 1.5px solid var(--accent-strong); color: var(--text); }
+
+  button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+    outline: 3px solid var(--accent-strong); outline-offset: 2px;
+  }
+
+  /* ---------- Forms ---------- */
+  label { display: block; font-size: .84rem; font-weight: 600; color: var(--text-soft); margin: 8px 0 4px; }
+  input, select {
+    font-family: inherit; font-size: 1rem; width: 100%;
+    padding: 10px 12px; border: 1.5px solid var(--accent);
+    border-radius: var(--radius-btn); background: #fff; color: var(--text);
+  }
+  .field-err { color: var(--error-text); font-size: .8rem; margin-top: 4px; min-height: 1em; }
+  .form-row { display: flex; gap: 10px; }
+  .form-row > div { flex: 1; }
+
+  /* ---------- Auth screen ---------- */
+  #auth-screen {
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 24px 16px;
+    text-align: center;
+  }
+  #auth-screen .auth-card { width: 100%; max-width: 380px; text-align: left; }
+  .auth-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+  .auth-tabs button {
+    flex: 1; padding: 9px; border: 1.5px solid var(--accent);
+    background: var(--bg); border-radius: var(--radius-btn);
+    font-family: inherit; font-weight: 700; color: var(--text-soft); cursor: pointer;
+  }
+  .auth-tabs button.active { background: var(--accent); color: var(--text); border-color: var(--accent-strong); }
+  .invite-hint { font-size: .78rem; color: var(--text-soft); }
+
+  /* ---------- Leaderboard ---------- */
+  .lb-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: var(--radius-btn);
+    background: var(--card); border: 1px solid var(--accent); margin-bottom: 8px;
+  }
+  .lb-row.me { border-color: var(--gold-strong); border-width: 2px; }
+  .lb-rank { font-size: 1.3rem; width: 34px; text-align: center; font-weight: 800; }
+  .lb-main { flex: 1; min-width: 0; }
+  .lb-name { font-weight: 700; }
+  .lb-meta { font-size: .78rem; color: var(--text-soft); }
+  .lb-pts  { font-weight: 800; font-size: 1.1rem; color: var(--gold-strong); text-align: right; }
+  .lb-prize{ font-size: .74rem; color: var(--success-text); font-weight: 700; }
+
+  /* ---------- Rulebook ---------- */
+  .rule-sec { margin-bottom: 16px; }
+  .rule-sec h3 { color: var(--accent-strong); }
+
+  /* ---------- Admin ---------- */
+  .admin-tabs { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 14px; padding-bottom: 4px; }
+  .admin-tabs button {
+    flex: 0 0 auto; padding: 8px 12px; border: 1px solid var(--accent);
+    background: var(--bg); border-radius: var(--radius-btn);
+    font-family: inherit; font-weight: 600; font-size: .85rem; color: var(--text-soft); cursor: pointer; white-space: nowrap;
+  }
+  .admin-tabs button.active { background: var(--text); color: #fff; border-color: var(--text); }
+  .admin-pane { display: none; }
+  .admin-pane.active { display: block; }
+  .list-item {
+    background: var(--card-alt); border: 1px solid var(--accent);
+    border-radius: var(--radius-btn); padding: 10px 12px; margin-bottom: 8px;
+    font-size: .9rem;
+  }
+  .list-item .li-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .li-title { font-weight: 700; }
+  .li-meta { font-size: .78rem; color: var(--text-soft); }
+  .code-box {
+    background: #fff; border: 1.5px dashed var(--gold-strong);
+    border-radius: var(--radius-btn); padding: 10px; font-family: monospace;
+    font-size: 1rem; word-break: break-all; text-align: center; margin: 8px 0;
+  }
+  .pill { display:inline-block; font-size:.72rem; font-weight:700; padding:2px 8px; border-radius:var(--radius-badge); }
+  .pill.paid   { background: var(--success-bg); color: var(--success-text); }
+  .pill.unpaid { background: var(--error-bg); color: var(--error-text); }
+  .pill.used   { background: var(--card); color: var(--text-soft); }
+  .pill.free   { background: var(--cat-verde); color: var(--success-text); }
+
+  /* ---------- Bottom tab bar ---------- */
+  nav.tabbar {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: var(--maxw);
+    height: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: var(--card); border-top: 1px solid var(--accent-strong);
+    display: flex; z-index: 30;
+  }
+  nav.tabbar button {
+    flex: 1; background: none; border: none; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 2px; font-family: inherit; font-size: .66rem; color: var(--text-soft); padding: 6px 2px;
+  }
+  nav.tabbar button .ic { font-size: 1.3rem; line-height: 1; }
+  nav.tabbar button.active { color: var(--text); font-weight: 700; }
+  nav.tabbar button.active .ic { transform: translateY(-1px); }
+
+  /* ---------- Toast ---------- */
+  #toast-wrap {
+    position: fixed; bottom: calc(var(--tabbar-h) + 16px); left: 50%; transform: translateX(-50%);
+    z-index: 50; width: 92%; max-width: 460px; display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+  }
+  .toast {
+    padding: 11px 14px; border-radius: var(--radius-btn); font-size: .9rem; font-weight: 600;
+    box-shadow: var(--shadow); animation: toastin .2s ease;
+  }
+  .toast.ok  { background: var(--success-bg); color: var(--success-text); }
+  .toast.err { background: var(--error-bg); color: var(--error-text); }
+  .toast.info{ background: var(--gold); color: var(--text); }
+  @keyframes toastin { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; } }
+
+  /* ---------- Misc ---------- */
+  .muted { color: var(--text-soft); font-size: .85rem; }
+  .empty { text-align: center; color: var(--text-soft); padding: 24px 12px; }
+  .center { text-align: center; }
+  .section-title { display: flex; align-items: center; gap: 8px; margin: 18px 0 10px; }
+  .section-title .line { flex: 1; height: 1px; background: var(--accent); }
+  hr.soft { border: none; border-top: 1px solid var(--accent); margin: 14px 0; }
+
+  footer.app-footer {
+    text-align: center; font-size: .72rem; color: var(--text-soft);
+    padding: 16px 12px 8px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- =========================================================
+     APP SHELL
+     ========================================================= -->
+<div class="app-shell" id="app-shell">
+
+  <!-- ------- AUTH SCREEN ------- -->
+  <div id="auth-screen">
+    <div style="font-size:2.4rem">💍🎉</div>
+    <h1>FantaMaury&Francy</h1>
+    <p class="muted">Il fanta-matrimonio di Maurizio &amp; Francesca · 1 agosto 2026</p>
+
+    <div class="card auth-card">
+      <div class="auth-tabs" role="tablist">
+        <button id="tab-login" class="active" onclick="switchAuthTab('login')" role="tab">Accedi</button>
+        <button id="tab-register" onclick="switchAuthTab('register')" role="tab">Registrati</button>
+        <button id="tab-bootstrap" style="display:none" onclick="switchAuthTab('bootstrap')" role="tab">Crea admin</button>
+      </div>
+
+      <!-- LOGIN -->
+      <form id="form-login" onsubmit="return false">
+        <label for="li-nome">Nome utente</label>
+        <input id="li-nome" autocomplete="username" />
+        <label for="li-pass">Password</label>
+        <input id="li-pass" type="password" autocomplete="current-password" />
+        <div class="field-err" id="li-err"></div>
+        <button class="cta" onclick="doLogin()">Accedi 🎲</button>
+      </form>
+
+      <!-- REGISTER -->
+      <form id="form-register" style="display:none" onsubmit="return false">
+        <label for="rg-nome">Nome utente</label>
+        <input id="rg-nome" autocomplete="username" />
+        <label for="rg-pass">Password (a tua scelta)</label>
+        <input id="rg-pass" type="password" autocomplete="new-password" />
+        <label for="rg-code">💌 Codice invito</label>
+        <input id="rg-code" autocomplete="off" placeholder="Es. MARIO-A7K2Q" />
+        <p class="invite-hint">Il codice ti è stato inviato da Matteo su WhatsApp. Serve una sola volta.</p>
+        <div class="field-err" id="rg-err"></div>
+        <button class="cta" onclick="doRegister()">Entra nel gioco 🎉</button>
+      </form>
+
+      <!-- BOOTSTRAP ADMIN (solo se nessun admin esiste) -->
+      <form id="form-bootstrap" style="display:none" onsubmit="return false">
+        <p class="muted">Nessun admin configurato. Crea l'account master (una tantum).</p>
+        <label for="bs-nome">Nome admin</label>
+        <input id="bs-nome" autocomplete="username" />
+        <label for="bs-pass">Password admin</label>
+        <input id="bs-pass" type="password" autocomplete="new-password" />
+        <div class="field-err" id="bs-err"></div>
+        <button class="cta" onclick="doBootstrapAdmin()">Crea admin ⚙️</button>
+      </form>
+    </div>
+    <p class="muted" id="conn-status">Connessione…</p>
+  </div>
+
+  <!-- ------- MAIN APP (nascosto finché non loggati) ------- -->
+  <div id="main-app" style="display:none">
+    <header class="top">
+      <div class="brand">FantaMaury&Francy 💍</div>
+      <div class="sub">Fanta-matrimonio · 1 agosto 2026</div>
+      <div class="whoami">
+        <span id="hdr-user"></span>
+        <span>·</span>
+        <span id="hdr-credits"></span>
+        <button class="logout-link" onclick="doLogout()">Esci</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- MARKETPLACE -->
+      <section class="view active" id="view-marketplace">
+        <div id="asta-banner"></div>
+        <div class="form-row" style="margin-bottom:12px">
+          <div>
+            <label for="flt-cat">Categoria</label>
+            <select id="flt-cat" onchange="renderMarketplace()"><option value="">Tutte</option></select>
+          </div>
+          <div>
+            <label for="flt-stato">Stato</label>
+            <select id="flt-stato" onchange="renderMarketplace()">
+              <option value="">Tutti</option>
+              <option value="disponibile">Disponibili</option>
+              <option value="acquistato">Acquistati</option>
+              <option value="avvenuto">Avvenuti</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid" id="market-grid"></div>
+      </section>
+
+      <!-- LE MIE SCOMMESSE -->
+      <section class="view" id="view-mybets">
+        <h2>🎯 Le mie scommesse</h2>
+        <div id="mybets-list"></div>
+        <div class="section-title"><span>Acquisti di tutti</span><span class="line"></span></div>
+        <p class="muted">Trasparenza totale: qui vedi cosa hanno comprato tutti.</p>
+        <div id="allbets-list"></div>
+      </section>
+
+      <!-- CLASSIFICA -->
+      <section class="view" id="view-leaderboard">
+        <h2>🏆 Classifica</h2>
+        <div id="montepremio-box" class="card"></div>
+        <div id="lb-list"></div>
+      </section>
+
+      <!-- REGOLAMENTO -->
+      <section class="view" id="view-rules">
+        <h2>📖 Regolamento</h2>
+        <div id="rules-content"></div>
+      </section>
+
+      <!-- ADMIN -->
+      <section class="view" id="view-admin">
+        <h2>⚙️ Pannello Admin</h2>
+        <div class="admin-tabs">
+          <button class="active" onclick="switchAdminTab('codici')">Codici invito</button>
+          <button onclick="switchAdminTab('eventi')">Eventi</button>
+          <button onclick="switchAdminTab('certif')">Certificazioni</button>
+          <button onclick="switchAdminTab('quote')">Quote</button>
+          <button onclick="switchAdminTab('assegna')">Assegnazioni</button>
+          <button onclick="switchAdminTab('settings')">Impostazioni</button>
+        </div>
+        <div class="admin-pane active" id="pane-codici"></div>
+        <div class="admin-pane" id="pane-eventi"></div>
+        <div class="admin-pane" id="pane-certif"></div>
+        <div class="admin-pane" id="pane-quote"></div>
+        <div class="admin-pane" id="pane-assegna"></div>
+        <div class="admin-pane" id="pane-settings"></div>
+      </section>
+
+      <footer class="app-footer">
+        Versione: 1.0 | Aggiornato: 13/07/2026 | Autore: Matteo Passerini
+      </footer>
+    </main>
+
+    <nav class="tabbar" id="tabbar">
+      <button class="active" data-view="marketplace" onclick="showView('marketplace')"><span class="ic">🛍️</span>Market</button>
+      <button data-view="mybets" onclick="showView('mybets')"><span class="ic">🎯</span>Scommesse</button>
+      <button data-view="leaderboard" onclick="showView('leaderboard')"><span class="ic">🏆</span>Classifica</button>
+      <button data-view="rules" onclick="showView('rules')"><span class="ic">📖</span>Regole</button>
+      <button data-view="admin" id="tab-admin" style="display:none" onclick="showView('admin')"><span class="ic">⚙️</span>Admin</button>
+    </nav>
+  </div>
+</div>
+
+<div id="toast-wrap"></div>
+
+<!-- =========================================================
+     FIREBASE SDK (compat v10.12.0 — eccezione CDN autorizzata)
+     ========================================================= -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
+<script>
+/* =========================================================
+   ⚠️  CONFIG FIREBASE — DA COMPILARE (vedi guida di setup)
+   Sostituire i valori placeholder con quelli del progetto
+   "fantamaury-francy" (Console Firebase > Impostazioni progetto).
+   ========================================================= */
+var firebaseConfig = {
+  apiKey:            "AIzaSyDJMpJ0ZjChwwvEiG1kLTpQesUuq5bswMw",
+  authDomain:        "fantamaury-francy.firebaseapp.com",
+  databaseURL:       "https://fantamaury-francy-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:         "fantamaury-francy",
+  storageBucket:     "fantamaury-francy.firebasestorage.app",
+  messagingSenderId: "183562257862",
+  appId:             "1:183562257862:web:2057679c1da2b66e375ec7"
+};
+
+/* =========================================================
+   COSTANTI
+   ========================================================= */
+var SESSION_KEY   = "fmf_session";      // chiave sessionStorage
+var DEFAULT_SETTINGS = {
+  dataAperturaAsta:      null,
+  deadlineAcquisti:      "2026-07-31T23:55:00",
+  dataMatrimonio:        "2026-08-01",
+  creditiIniziali:       100,
+  quotaIscrizione:       5,
+  percentualiMontepremio:{ primo: 50, secondo: 30, terzo: 20 },
+  sogliaCertificazioni:  3
+};
+var STATO = { DISP: "disponibile", ACQ: "acquistato", AVV: "avvenuto" };
+var RUOLO = { ADMIN: "admin", PART: "partecipante" };
+
+/* Emoji per categoria (fallback 🎲 se categoria non mappata) */
+var CAT_EMOJI = {
+  "Cerimonia": "💒", "Ricevimento": "🎉", "Discorsi": "🎤",
+  "Sposi": "👰", "Invitati": "🕺", "Festa": "🪩", "Foto": "📸", "Generico": "🎲"
+};
+/* Rotazione colori badge categoria */
+var CAT_COLORS = ["var(--cat-lavanda)", "var(--cat-azzurro)", "var(--cat-verde)", "var(--accent)"];
+
+/* =========================================================
+   STATO GLOBALE (aggiornato dai listener Firebase)
+   ========================================================= */
+var STATE = {
+  settings: Object.assign({}, DEFAULT_SETTINGS),
+  events:   {},   // { eventId: {...} }
+  users:    {},   // { userId: {...} }
+  session:  null, // { userId, nome, ruolo }
+  currentView: "marketplace",
+  currentAdminTab: "codici",
+  listenersReady: false
+};
+
+var db = null, auth = null;
+
+/* =========================================================
+   UTILITÀ
+   ========================================================= */
+function $(id){ return document.getElementById(id); }
+
+function toast(msg, type){
+  var w = $("toast-wrap");
+  var el = document.createElement("div");
+  el.className = "toast " + (type || "info");
+  el.textContent = msg;
+  w.appendChild(el);
+  setTimeout(function(){ el.style.opacity = "0"; setTimeout(function(){ el.remove(); }, 250); }, 3200);
+}
+
+/* SHA-256 (SubtleCrypto — richiede contesto HTTPS, garantito da GitHub Pages) */
+function sha256(text){
+  var data = new TextEncoder().encode(text);
+  return crypto.subtle.digest("SHA-256", data).then(function(buf){
+    var arr = Array.prototype.slice.call(new Uint8Array(buf));
+    return arr.map(function(b){ return b.toString(16).padStart(2, "0"); }).join("");
+  });
+}
+
+function nowISO(){ return new Date().toISOString(); }
+
+function fmtDateTime(iso){
+  if(!iso) return "—";
+  var d = new Date(iso);
+  if(isNaN(d)) return iso;
+  return d.toLocaleString("it-IT", { day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit" });
+}
+
+function escapeHtml(s){
+  if(s === null || s === undefined) return "";
+  return String(s).replace(/[&<>"']/g, function(c){
+    return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c];
+  });
+}
+
+function catEmoji(cat){ return CAT_EMOJI[cat] || "🎲"; }
+function catColor(cat){
+  var keys = Object.keys(CAT_EMOJI);
+  var idx = keys.indexOf(cat);
+  if(idx < 0) idx = (cat || "").length; // fallback deterministico
+  return CAT_COLORS[idx % CAT_COLORS.length];
+}
+
+/* Stato asta: "waiting" | "open" | "closed" */
+function astaState(){
+  var now = Date.now();
+  var apertura = STATE.settings.dataAperturaAsta ? new Date(STATE.settings.dataAperturaAsta).getTime() : null;
+  var deadline = STATE.settings.deadlineAcquisti ? new Date(STATE.settings.deadlineAcquisti).getTime() : null;
+  if(apertura === null || now < apertura) return "waiting";
+  if(deadline !== null && now > deadline) return "closed";
+  return "open";
+}
+
+/* =========================================================
+   BOOT: init Firebase + Anonymous Auth + listener
+   ========================================================= */
+function boot(){
+  try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.database();
+    auth = firebase.auth();
+  } catch(e){
+    $("conn-status").textContent = "❌ Config Firebase mancante o errata. Compila firebaseConfig.";
+    return;
+  }
+
+  // Anonymous Auth = gate: le Security Rules richiedono auth != null
+  auth.signInAnonymously().then(function(){
+    $("conn-status").textContent = "Connesso ✔";
+    attachListeners();
+    restoreSession();
+  }).catch(function(err){
+    if(err && err.code === "auth/operation-not-allowed"){
+      $("conn-status").textContent = "❌ Abilita 'Anonymous' in Firebase > Authentication > Sign-in method.";
+    } else {
+      $("conn-status").textContent = "❌ Errore autenticazione: " + (err.code || err.message);
+    }
+  });
+}
+
+function attachListeners(){
+  db.ref("settings").on("value", function(snap){
+    STATE.settings = Object.assign({}, DEFAULT_SETTINGS, snap.val() || {});
+    onDataChange();
+  });
+  db.ref("events").on("value", function(snap){
+    STATE.events = snap.val() || {};
+    onDataChange();
+  });
+  db.ref("users").on("value", function(snap){
+    STATE.users = snap.val() || {};
+    refreshBootstrapVisibility();
+    // se l'utente loggato è stato rimosso, esci
+    if(STATE.session && !STATE.users[STATE.session.userId]){ doLogout(); return; }
+    onDataChange();
+  });
+  STATE.listenersReady = true;
+}
+
+function onDataChange(){
+  if(!STATE.session) return;
+  renderHeader();
+  renderCurrentView();
+}
+
+/* Mostra tab "Crea admin" solo se nessun admin esiste */
+function refreshBootstrapVisibility(){
+  var hasAdmin = false;
+  for(var uid in STATE.users){
+    if(STATE.users[uid] && STATE.users[uid].ruolo === RUOLO.ADMIN){ hasAdmin = true; break; }
+  }
+  $("tab-bootstrap").style.display = hasAdmin ? "none" : "";
+}
+
+/* =========================================================
+   SESSIONE
+   ========================================================= */
+function saveSession(sess){
+  STATE.session = sess;
+  try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(sess)); } catch(e){}
+}
+function restoreSession(){
+  var raw = null;
+  try { raw = sessionStorage.getItem(SESSION_KEY); } catch(e){}
+  if(!raw){ return; }
+  try {
+    var s = JSON.parse(raw);
+    // valida contro il DB una volta pronto
+    var check = function(){
+      if(STATE.users[s.userId]){
+        s.ruolo = STATE.users[s.userId].ruolo; // riallinea ruolo
+        STATE.session = s;
+        enterApp();
+      } else {
+        clearSession();
+      }
+    };
+    if(Object.keys(STATE.users).length > 0) check();
+    else db.ref("users/" + s.userId).once("value").then(function(snap){
+      if(snap.exists()){ s.ruolo = snap.val().ruolo; STATE.session = s; enterApp(); }
+      else clearSession();
+    });
+  } catch(e){ clearSession(); }
+}
+function clearSession(){
+  STATE.session = null;
+  try { sessionStorage.removeItem(SESSION_KEY); } catch(e){}
+}
+
+/* =========================================================
+   AUTH — Login / Register / Bootstrap admin / Logout
+   ========================================================= */
+function switchAuthTab(which){
+  var map = { login:"tab-login", register:"tab-register", bootstrap:"tab-bootstrap" };
+  ["tab-login","tab-register","tab-bootstrap"].forEach(function(id){ $(id).classList.remove("active"); });
+  $(map[which]).classList.add("active");
+  $("form-login").style.display    = which === "login" ? "" : "none";
+  $("form-register").style.display = which === "register" ? "" : "none";
+  $("form-bootstrap").style.display= which === "bootstrap" ? "" : "none";
+}
+
+function findUserByName(nome){
+  for(var uid in STATE.users){
+    if(STATE.users[uid] && STATE.users[uid].nome &&
+       STATE.users[uid].nome.toLowerCase() === nome.toLowerCase()){
+      return { userId: uid, user: STATE.users[uid] };
+    }
+  }
+  return null;
+}
+
+function doLogin(){
+  var nome = $("li-nome").value.trim();
+  var pass = $("li-pass").value;
+  $("li-err").textContent = "";
+  if(!nome || !pass){ $("li-err").textContent = "Inserisci nome e password."; return; }
+
+  sha256(pass).then(function(hash){
+    var found = findUserByName(nome);
+    if(!found || found.user.passwordHash !== hash){
+      $("li-err").textContent = "Nome o password non corretti.";
+      return;
+    }
+    saveSession({ userId: found.userId, nome: found.user.nome, ruolo: found.user.ruolo });
+    enterApp();
+  });
+}
+
+function doRegister(){
+  var nome = $("rg-nome").value.trim();
+  var pass = $("rg-pass").value;
+  var code = $("rg-code").value.trim();
+  $("rg-err").textContent = "";
+
+  if(!nome || !pass || !code){ $("rg-err").textContent = "Compila tutti i campi."; return; }
+  if(pass.length < 4){ $("rg-err").textContent = "Password troppo corta (min 4 caratteri)."; return; }
+  if(findUserByName(nome)){ $("rg-err").textContent = "Nome utente già in uso, scegline un altro."; return; }
+
+  // 1. cerca il codice invito
+  db.ref("inviteCodes").orderByChild("code").equalTo(code).once("value").then(function(snap){
+    if(!snap.exists()){ $("rg-err").textContent = "Codice invito non valido."; return; }
+    var codeKey = null, codeRec = null;
+    snap.forEach(function(child){ codeKey = child.key; codeRec = child.val(); });
+    if(codeRec.usato){ $("rg-err").textContent = "Codice invito già utilizzato."; return; }
+
+    // 2. crea id utente e hash password
+    var newUserId = db.ref("users").push().key;
+    sha256(pass).then(function(hash){
+      // 3. consuma il codice in modo atomico (evita doppio uso)
+      db.ref("inviteCodes/" + codeKey).transaction(function(cur){
+        if(cur === null) return;
+        if(cur.usato) return; // abort
+        cur.usato = true;
+        cur.usatoDa = newUserId;
+        cur.timestampUtilizzo = nowISO();
+        return cur;
+      }, function(err, committed){
+        if(err){ $("rg-err").textContent = "Errore, riprova."; return; }
+        if(!committed){ $("rg-err").textContent = "Codice appena usato da un altro. Contatta Matteo."; return; }
+        // 4. crea l'utente
+        var u = {
+          nome: nome,
+          passwordHash: hash,
+          creditiResidui: STATE.settings.creditiIniziali,
+          ruolo: RUOLO.PART,
+          timestampReg: nowISO()
+        };
+        db.ref("users/" + newUserId).set(u).then(function(){
+          saveSession({ userId: newUserId, nome: nome, ruolo: RUOLO.PART });
+          toast("Benvenuto/a, " + nome + "! 🎉", "ok");
+          enterApp();
+        });
+      });
+    });
+  }).catch(function(){ $("rg-err").textContent = "Errore di rete, riprova."; });
+}
+
+function doBootstrapAdmin(){
+  var nome = $("bs-nome").value.trim();
+  var pass = $("bs-pass").value;
+  $("bs-err").textContent = "";
+  if(!nome || !pass){ $("bs-err").textContent = "Compila tutti i campi."; return; }
+
+  // ricontrolla che non esista già un admin (anti-abuso)
+  var hasAdmin = false;
+  for(var uid in STATE.users){ if(STATE.users[uid].ruolo === RUOLO.ADMIN){ hasAdmin = true; break; } }
+  if(hasAdmin){ $("bs-err").textContent = "Un admin esiste già."; switchAuthTab("login"); return; }
+  if(findUserByName(nome)){ $("bs-err").textContent = "Nome già in uso."; return; }
+
+  var newId = db.ref("users").push().key;
+  sha256(pass).then(function(hash){
+    var u = { nome:nome, passwordHash:hash, creditiResidui:0, ruolo:RUOLO.ADMIN, timestampReg:nowISO() };
+    db.ref("users/" + newId).set(u).then(function(){
+      saveSession({ userId:newId, nome:nome, ruolo:RUOLO.ADMIN });
+      toast("Account admin creato ⚙️", "ok");
+      enterApp();
+    });
+  });
+}
+
+function doLogout(){
+  clearSession();
+  $("main-app").style.display = "none";
+  $("auth-screen").style.display = "flex";
+  switchAuthTab("login");
+}
+
+function enterApp(){
+  $("auth-screen").style.display = "none";
+  $("main-app").style.display = "block";
+  $("tab-admin").style.display = (STATE.session.ruolo === RUOLO.ADMIN) ? "" : "none";
+  showView("marketplace");
+  renderHeader();
+}
+
+/* =========================================================
+   NAVIGAZIONE VIEW
+   ========================================================= */
+function showView(name){
+  STATE.currentView = name;
+  var views = ["marketplace","mybets","leaderboard","rules","admin"];
+  views.forEach(function(v){
+    var el = $("view-" + v);
+    if(el) el.classList.toggle("active", v === name);
+  });
+  var tabs = document.querySelectorAll("nav.tabbar button");
+  tabs.forEach(function(b){ b.classList.toggle("active", b.getAttribute("data-view") === name); });
+  renderCurrentView();
+  window.scrollTo(0, 0);
+}
+
+function renderCurrentView(){
+  switch(STATE.currentView){
+    case "marketplace": renderMarketplace(); break;
+    case "mybets":      renderMyBets(); break;
+    case "leaderboard": renderLeaderboard(); break;
+    case "rules":       renderRules(); break;
+    case "admin":       renderAdmin(); break;
+  }
+}
+
+function renderHeader(){
+  if(!STATE.session) return;
+  $("hdr-user").textContent = "👤 " + STATE.session.nome +
+    (STATE.session.ruolo === RUOLO.ADMIN ? " (admin)" : "");
+  var u = STATE.users[STATE.session.userId];
+  if(u && STATE.session.ruolo !== RUOLO.ADMIN){
+    $("hdr-credits").textContent = "💳 " + u.creditiResidui + " crediti";
+  } else {
+    $("hdr-credits").textContent = "";
+  }
+}
+
+/* =========================================================
+   MARKETPLACE
+   ========================================================= */
+function populateCategoryFilter(){
+  var sel = $("flt-cat");
+  var current = sel.value;
+  var cats = {};
+  for(var id in STATE.events){ if(STATE.events[id].categoria) cats[STATE.events[id].categoria] = true; }
+  sel.innerHTML = '<option value="">Tutte</option>';
+  Object.keys(cats).sort().forEach(function(c){
+    var o = document.createElement("option"); o.value = c; o.textContent = c; sel.appendChild(o);
+  });
+  sel.value = current;
+}
+
+function renderAstaBanner(){
+  var st = astaState();
+  var b = $("asta-banner");
+  if(st === "waiting"){
+    var when = STATE.settings.dataAperturaAsta ? fmtDateTime(STATE.settings.dataAperturaAsta) : "data da definire";
+    b.className = "banner waiting";
+    b.innerHTML = "⏳ Asta non ancora aperta — apertura: " + escapeHtml(when);
+  } else if(st === "open"){
+    b.className = "banner open";
+    b.innerHTML = "🟢 Asta APERTA — acquisti fino al " + escapeHtml(fmtDateTime(STATE.settings.deadlineAcquisti));
+  } else {
+    b.className = "banner closed";
+    b.innerHTML = "🔒 Asta chiusa — marketplace in sola lettura";
+  }
+}
+
+function renderMarketplace(){
+  renderAstaBanner();
+  populateCategoryFilter();
+
+  var fCat = $("flt-cat").value;
+  var fStato = $("flt-stato").value;
+  var grid = $("market-grid");
+  var open = astaState() === "open";
+  var html = "";
+  var ids = Object.keys(STATE.events);
+
+  var shown = 0;
+  ids.forEach(function(id){
+    var ev = STATE.events[id];
+    if(fCat && ev.categoria !== fCat) return;
+    if(fStato && ev.stato !== fStato) return;
+    shown++;
+
+    var uid = STATE.session.userId;
+    var mine = (ev.acquistatoDa === uid);
+    var isAdmin = STATE.session.ruolo === RUOLO.ADMIN;
+    var certByMe = ev.certificazioni && ev.certificazioni[uid];
+    var nCert = ev.certificazioni ? Object.keys(ev.certificazioni).length : 0;
+    var soglia = STATE.settings.sogliaCertificazioni || 3;
+
+    var cls = "event-card";
+    if(ev.stato === STATO.AVV) cls += " done";
+    else if(ev.stato === STATO.ACQ && !mine && certByMe) cls += " sold"; // muta solo se ho già certificato
+
+    var buyerName = ev.acquistatoDa && STATE.users[ev.acquistatoDa] ? STATE.users[ev.acquistatoDa].nome : "—";
+    var stateBadge = "";
+    if(ev.stato === STATO.AVV) stateBadge = '<span class="badge state done">✅ Avvenuto</span>';
+    else if(ev.stato === STATO.ACQ) stateBadge = '<span class="badge state">'+(mine ? "🎯 Tuo" : "🔒 " + escapeHtml(buyerName))+'</span>';
+
+    // progress certificazioni (solo eventi acquistati, non ancora avvenuti)
+    var certProgress = "";
+    if(ev.stato === STATO.ACQ) certProgress = '<span class="badge state">🖐️ '+nCert+'/'+soglia+'</span>';
+
+    var canBuy = open && ev.stato === STATO.DISP && !isAdmin;
+    var ctaHtml = "";
+    if(isAdmin){
+      ctaHtml = '<div class="muted center" style="font-size:.78rem">(vista admin — usa il pannello)</div>';
+    } else if(ev.stato === STATO.DISP){
+      ctaHtml = '<button class="cta" '+(canBuy?"":"disabled")+' onclick="confirmPurchase(\''+id+'\')">Compra 🎲</button>';
+    } else if(ev.stato === STATO.ACQ && !mine){
+      // il partecipante NON proprietario può certificare (una volta sola)
+      ctaHtml = certByMe
+        ? '<button class="btn secondary" disabled>Hai certificato ✔</button>'
+        : '<button class="btn secondary" onclick="certifyEvent(\''+id+'\')">Certifica ✅</button>';
+    } else if(ev.stato === STATO.ACQ && mine){
+      ctaHtml = '<div class="muted center" style="font-size:.78rem">Non puoi certificare il tuo evento</div>';
+    }
+
+    html += ''
+      + '<div class="'+cls+'">'
+      +   '<div class="event-emoji">'+catEmoji(ev.categoria)+'</div>'
+      +   '<span class="cat-badge" style="background:'+catColor(ev.categoria)+'">'+escapeHtml(ev.categoria || "—")+'</span>'
+      +   '<div class="event-name">'+escapeHtml(ev.nome)+'</div>'
+      +   '<div class="badges-row">'
+      +     '<span class="badge price">💰 '+ev.prezzo+'</span>'
+      +     '<span class="badge mult">✨ x'+ev.quota+'</span>'
+      +     stateBadge
+      +     certProgress
+      +   '</div>'
+      +   ctaHtml
+      + '</div>';
+  });
+
+  grid.innerHTML = shown > 0 ? html : '<div class="empty">Nessun evento da mostrare.<br>La lista sarà popolata dall\'admin.</div>';
+}
+
+function confirmPurchase(eventId){
+  var ev = STATE.events[eventId];
+  if(!ev) return;
+  var u = STATE.users[STATE.session.userId];
+  if(u.creditiResidui < ev.prezzo){ toast("Crediti insufficienti 💳", "err"); return; }
+  if(!confirm('Comprare "'+ev.nome+'" per '+ev.prezzo+' crediti (quota x'+ev.quota+')?')) return;
+  purchaseEvent(eventId);
+}
+
+/* Acquisto con transazione atomica sull'evento (anti race-condition) */
+function purchaseEvent(eventId){
+  var uid = STATE.session.userId;
+  var ev = STATE.events[eventId];
+  if(astaState() !== "open"){ toast("Asta non aperta", "err"); return; }
+
+  var evRef = db.ref("events/" + eventId);
+  evRef.transaction(function(cur){
+    if(cur === null) return;                 // evento inesistente → abort
+    if(cur.stato !== STATO.DISP) return;      // già preso → abort
+    cur.stato = STATO.ACQ;
+    cur.acquistatoDa = uid;
+    cur.prezzoPagato = cur.prezzo;
+    cur.quotaBloccata = cur.quota;
+    cur.timestampAcquisto = nowISO();
+    return cur;
+  }, function(err, committed){
+    if(err){ toast("Errore acquisto, riprova", "err"); return; }
+    if(!committed){ toast("Troppo tardi! Evento già acquistato ⚡", "err"); return; }
+
+    // scala i crediti in modo atomico; se falliscono, rollback dell'evento
+    db.ref("users/" + uid + "/creditiResidui").transaction(function(c){
+      if(c === null) c = 0;
+      if(c < ev.prezzo) return;               // crediti insufficienti → abort
+      return c - ev.prezzo;
+    }, function(err2, committed2){
+      if(!committed2){
+        // compensazione: libera l'evento
+        evRef.transaction(function(cur){
+          if(cur && cur.acquistatoDa === uid && cur.stato === STATO.ACQ){
+            cur.stato = STATO.DISP; cur.acquistatoDa = null;
+            cur.prezzoPagato = null; cur.quotaBloccata = null; cur.timestampAcquisto = null;
+          }
+          return cur;
+        });
+        toast("Crediti insufficienti, acquisto annullato", "err");
+      } else {
+        toast("Acquistato! 🎉 " + ev.nome, "ok");
+      }
+    });
+  });
+}
+
+/* =========================================================
+   LE MIE SCOMMESSE + ACQUISTI DI TUTTI
+   ========================================================= */
+function eventPoints(ev){
+  if(ev.stato !== STATO.AVV) return 0;
+  return (ev.prezzoPagato || 0) * (ev.quotaBloccata || 0);
+}
+function eventPotential(ev){
+  return (ev.prezzoPagato || ev.prezzo || 0) * (ev.quotaBloccata || ev.quota || 0);
+}
+
+function renderMyBets(){
+  var uid = STATE.session.userId;
+  var mine = [], all = [];
+  for(var id in STATE.events){
+    var ev = STATE.events[id];
+    if(ev.acquistatoDa){
+      if(ev.acquistatoDa === uid) mine.push([id, ev]);
+      all.push([id, ev]);
+    }
+  }
+  // le mie
+  var myHtml = "";
+  if(mine.length === 0){ myHtml = '<div class="empty">Non hai ancora acquistato eventi.</div>'; }
+  mine.forEach(function(pair){
+    var ev = pair[1];
+    var pts = ev.stato === STATO.AVV ? ("🏆 +" + eventPoints(ev) + " punti") : ("potenziali: " + eventPotential(ev));
+    myHtml += ''
+      + '<div class="list-item">'
+      +   '<div class="li-title">'+catEmoji(ev.categoria)+' '+escapeHtml(ev.nome)+'</div>'
+      +   '<div class="li-meta">💰 '+ev.prezzoPagato+' · ✨ x'+ev.quotaBloccata+' · '
+      +     (ev.stato === STATO.AVV ? '<span class="pill paid">'+pts+'</span>' : '<span class="pill used">'+pts+'</span>')
+      +   '</div>'
+      + '</div>';
+  });
+  $("mybets-list").innerHTML = myHtml;
+
+  // tutti
+  var allHtml = "";
+  if(all.length === 0){ allHtml = '<div class="empty">Nessun acquisto ancora.</div>'; }
+  all.sort(function(a,b){ return (b[1].timestampAcquisto||"").localeCompare(a[1].timestampAcquisto||""); });
+  all.forEach(function(pair){
+    var ev = pair[1];
+    var who = STATE.users[ev.acquistatoDa] ? STATE.users[ev.acquistatoDa].nome : "—";
+    allHtml += ''
+      + '<div class="list-item">'
+      +   '<div class="li-title">'+catEmoji(ev.categoria)+' '+escapeHtml(ev.nome)+'</div>'
+      +   '<div class="li-meta">👤 '+escapeHtml(who)+' · 💰 '+ev.prezzoPagato+' · ✨ x'+ev.quotaBloccata
+      +     (ev.stato === STATO.AVV ? ' · <span class="pill paid">✅ avvenuto</span>' : '')+'</div>'
+      + '</div>';
+  });
+  $("allbets-list").innerHTML = allHtml;
+}
+
+/* =========================================================
+   CLASSIFICA + MONTEPREMIO
+   ========================================================= */
+function computeLeaderboard(){
+  var rows = {};
+  // init partecipanti
+  for(var uid in STATE.users){
+    var u = STATE.users[uid];
+    if(u.ruolo === RUOLO.ADMIN) continue;
+    rows[uid] = {
+      userId: uid, nome: u.nome,
+      punti: 0,
+      speso: (STATE.settings.creditiIniziali - u.creditiResidui)
+    };
+  }
+  // somma punti da eventi avvenuti
+  for(var id in STATE.events){
+    var ev = STATE.events[id];
+    if(ev.stato === STATO.AVV && ev.acquistatoDa && rows[ev.acquistatoDa]){
+      rows[ev.acquistatoDa].punti += eventPoints(ev);
+    }
+  }
+  var arr = Object.keys(rows).map(function(k){ return rows[k]; });
+  // ordinamento: punti desc, poi speso asc (tie-break: chi ha speso meno vince)
+  arr.sort(function(a,b){
+    if(b.punti !== a.punti) return b.punti - a.punti;
+    return a.speso - b.speso;
+  });
+  return arr;
+}
+
+function renderMontepremioBox(lb){
+  // Montepremio = quota × n. partecipanti con quota versata.
+  // I codici invito sono leggibili solo dall'admin lato UI; per i partecipanti
+  // stimiamo il montepremio sul numero di partecipanti registrati (buona approssimazione).
+  var box = $("montepremio-box");
+  var quota = STATE.settings.quotaIscrizione;
+  var perc = STATE.settings.percentualiMontepremio || DEFAULT_SETTINGS.percentualiMontepremio;
+
+  var render = function(nPaganti){
+    var totale = quota * nPaganti;
+    var primo = Math.round(totale * perc.primo / 100);
+    var secondo = Math.round(totale * perc.secondo / 100);
+    var terzo = Math.round(totale * perc.terzo / 100);
+    var n1 = lb[0] ? lb[0].nome : "—";
+    var n2 = lb[1] ? lb[1].nome : "—";
+    var n3 = lb[2] ? lb[2].nome : "—";
+    box.innerHTML = ''
+      + '<h3>💶 Montepremio: '+totale+' €</h3>'
+      + '<div class="muted">'+nPaganti+' partecipanti · quota '+quota+' € a testa</div>'
+      + '<hr class="soft">'
+      + '<div class="li-meta">🥇 '+escapeHtml(n1)+' — <b>'+primo+' €</b> ('+perc.primo+'%)</div>'
+      + '<div class="li-meta">🥈 '+escapeHtml(n2)+' — <b>'+secondo+' €</b> ('+perc.secondo+'%)</div>'
+      + '<div class="li-meta">🥉 '+escapeHtml(n3)+' — <b>'+terzo+' €</b> ('+perc.terzo+'%)</div>';
+  };
+
+  if(STATE.session.ruolo === RUOLO.ADMIN){
+    // admin: conteggio esatto dai codici con quota versata
+    db.ref("inviteCodes").once("value").then(function(snap){
+      var n = 0; var codes = snap.val() || {};
+      for(var k in codes){ if(codes[k].quotaVersata) n++; }
+      render(n);
+    }).catch(function(){ render(lb.length); });
+  } else {
+    render(lb.length); // approssimazione lato partecipante
+  }
+}
+
+function renderLeaderboard(){
+  var lb = computeLeaderboard();
+  renderMontepremioBox(lb);
+  var html = "";
+  if(lb.length === 0){ html = '<div class="empty">Nessun partecipante ancora in classifica.</div>'; }
+  var medals = ["🥇","🥈","🥉"];
+  lb.forEach(function(r, i){
+    var rank = i < 3 ? medals[i] : (i+1);
+    var me = (r.userId === STATE.session.userId);
+    html += ''
+      + '<div class="lb-row'+(me?" me":"")+'">'
+      +   '<div class="lb-rank">'+rank+'</div>'
+      +   '<div class="lb-main">'
+      +     '<div class="lb-name">'+escapeHtml(r.nome)+(me?' <span class="muted">(tu)</span>':'')+'</div>'
+      +     '<div class="lb-meta">Speso: '+r.speso+' crediti</div>'
+      +   '</div>'
+      +   '<div><div class="lb-pts">'+r.punti+'</div><div class="lb-meta">punti</div></div>'
+      + '</div>';
+  });
+  $("lb-list").innerHTML = html;
+}
+
+/* =========================================================
+   REGOLAMENTO
+   ========================================================= */
+function renderRules(){
+  var s = STATE.settings;
+  var apertura = s.dataAperturaAsta ? fmtDateTime(s.dataAperturaAsta) : "da definire";
+  var perc = s.percentualiMontepremio || DEFAULT_SETTINGS.percentualiMontepremio;
+  $("rules-content").innerHTML = ''
+    + '<div class="card rule-sec"><h3>📜 Come funziona</h3>'
+    + '<p>Compri "scommesse" su cose che potrebbero succedere al matrimonio. Se un evento che possiedi accade davvero, guadagni punti. Chi ne accumula di più vince il montepremio!</p></div>'
+
+    + '<div class="card rule-sec"><h3>💳 Crediti</h3>'
+    + '<p>Ricevi <b>'+s.creditiIniziali+' crediti</b> all\'iscrizione. Li spendi per comprare eventi dal marketplace. Non si ricaricano: usali con strategia. I crediti non spesi a fine gioco non valgono nulla.</p></div>'
+
+    + '<div class="card rule-sec"><h3>⏱️ L\'asta</h3>'
+    + '<p>Il marketplace apre a un orario preciso (<b>'+escapeHtml(apertura)+'</b>): chi prima arriva, meglio alloggia! Ogni evento può essere comprato da <b>una sola persona</b>. Acquisti chiusi il <b>'+escapeHtml(fmtDateTime(s.deadlineAcquisti))+'</b>.</p></div>'
+
+    + '<div class="card rule-sec"><h3>✅ Certificazione</h3>'
+    + '<p>Il giorno del matrimonio, quando un evento accade, le prove (foto/video) si condividono nella <b>chat WhatsApp dedicata</b>. Nell\'app, chiunque <i>tranne il proprietario</i> può certificare l\'evento. Alla <b>'+s.sogliaCertificazioni+'ª certificazione</b> da persone diverse, l\'evento diventa "avvenuto" e i punti scattano in automatico. L\'admin ha sempre l\'ultima parola.</p></div>'
+
+    + '<div class="card rule-sec"><h3>🧮 Punti</h3>'
+    + '<p><b>Punti = prezzo pagato × quota dell\'evento</b>, assegnati solo quando l\'evento è "avvenuto". In caso di parità in classifica, vince chi ha speso meno crediti.</p></div>'
+
+    + '<div class="card rule-sec"><h3>💶 Montepremio</h3>'
+    + '<p>Quota d\'iscrizione: <b>'+s.quotaIscrizione+' €</b> a testa (pagata a Matteo fuori app). Il montepremio totale si divide tra i primi 3: <b>'+perc.primo+'% / '+perc.secondo+'% / '+perc.terzo+'%</b>. L\'erogazione avviene fuori app.</p></div>'
+
+    + '<div class="card rule-sec"><h3>🛠️ Correzioni admin</h3>'
+    + '<p>L\'admin può annullare un acquisto errato (con rimborso crediti), correggere una marcatura sbagliata e assegnare manualmente eventi rimasti liberi. Serve solo a tenere il gioco giusto e divertente.</p></div>';
+}
+
+/* =========================================================
+   ADMIN
+   ========================================================= */
+function switchAdminTab(tab){
+  STATE.currentAdminTab = tab;
+  var tabs = ["codici","eventi","certif","quote","assegna","settings"];
+  var btns = document.querySelectorAll(".admin-tabs button");
+  var labels = { codici:0, eventi:1, certif:2, quote:3, assegna:4, settings:5 };
+  btns.forEach(function(b,i){ b.classList.toggle("active", i === labels[tab]); });
+  tabs.forEach(function(t){ $("pane-"+t).classList.toggle("active", t === tab); });
+  renderAdmin();
+}
+
+function renderAdmin(){
+  if(STATE.session.ruolo !== RUOLO.ADMIN) return;
+  switch(STATE.currentAdminTab){
+    case "codici":   renderAdminCodici(); break;
+    case "eventi":   renderAdminEventi(); break;
+    case "certif":   renderAdminCertif(); break;
+    case "quote":    renderAdminQuote(); break;
+    case "assegna":  renderAdminAssegna(); break;
+    case "settings": renderAdminSettings(); break;
+  }
+}
+
+/* --- Codici invito --- */
+function renderAdminCodici(){
+  var pane = $("pane-codici");
+  pane.innerHTML = ''
+    + '<div class="card">'
+    +   '<h3>Genera codice invito</h3>'
+    +   '<label for="ac-nome">Nome della persona da invitare</label>'
+    +   '<input id="ac-nome" placeholder="Es. Mario Rossi">'
+    +   '<label><input type="checkbox" id="ac-quota" style="width:auto;margin-right:6px">Quota di '+STATE.settings.quotaIscrizione+' € già versata</label>'
+    +   '<div class="field-err" id="ac-err"></div>'
+    +   '<button class="btn" onclick="generateInviteCode()">Genera codice 🎟️</button>'
+    +   '<div id="ac-result"></div>'
+    + '</div>'
+    + '<div class="section-title"><span>Codici generati</span><span class="line"></span></div>'
+    + '<div id="ac-list"><div class="empty">Caricamento…</div></div>';
+
+  db.ref("inviteCodes").once("value").then(function(snap){
+    var codes = snap.val() || {};
+    var keys = Object.keys(codes);
+    if(keys.length === 0){ $("ac-list").innerHTML = '<div class="empty">Nessun codice generato.</div>'; return; }
+    keys.sort(function(a,b){ return (codes[b].timestampGenerazione||"").localeCompare(codes[a].timestampGenerazione||""); });
+    var html = "";
+    keys.forEach(function(k){
+      var c = codes[k];
+      html += ''
+        + '<div class="list-item">'
+        +   '<div class="li-title">'+escapeHtml(c.nomeDestinatario)+'</div>'
+        +   '<div class="code-box">'+escapeHtml(c.code)+'</div>'
+        +   '<div class="li-meta">'
+        +     (c.usato ? '<span class="pill used">usato da '+escapeHtml((c.usatoDa&&STATE.users[c.usatoDa])?STATE.users[c.usatoDa].nome:"?")+'</span>' : '<span class="pill free">disponibile</span>')
+        +     ' · '+(c.quotaVersata ? '<span class="pill paid">quota ✔</span>' : '<span class="pill unpaid">quota in attesa</span>')
+        +   '</div>'
+        +   '<div class="li-actions">'
+        +     '<button class="btn small ghost" onclick="copyCode(\''+escapeHtml(c.code)+'\')">Copia</button>'
+        +     (c.usato ? '' : '<button class="btn small danger" onclick="deleteCode(\''+k+'\')">Elimina</button>')
+        +   '</div>'
+        + '</div>';
+    });
+    $("ac-list").innerHTML = html;
+  });
+}
+
+function randSuffix(len){
+  var chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // niente 0/O/1/I per leggibilità
+  var s = "";
+  for(var i=0;i<len;i++) s += chars.charAt(Math.floor(Math.random()*chars.length));
+  return s;
+}
+
+function generateInviteCode(){
+  var nome = $("ac-nome").value.trim();
+  var quota = $("ac-quota").checked;
+  $("ac-err").textContent = "";
+  if(!nome){ $("ac-err").textContent = "Inserisci il nome della persona."; return; }
+
+  var base = nome.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 8) || "OSPITE";
+  var code = base + "-" + randSuffix(5);
+
+  // garantisci unicità
+  db.ref("inviteCodes").orderByChild("code").equalTo(code).once("value").then(function(snap){
+    if(snap.exists()){ generateInviteCode(); return; } // collisione rara → rigenera
+    var rec = {
+      code: code,
+      nomeDestinatario: nome,
+      quotaVersata: quota,
+      usato: false,
+      usatoDa: null,
+      timestampGenerazione: nowISO(),
+      timestampUtilizzo: null
+    };
+    db.ref("inviteCodes").push(rec).then(function(){
+      $("ac-result").innerHTML = '<div class="code-box">'+escapeHtml(code)+'</div>'
+        + '<button class="btn small" onclick="copyCode(\''+escapeHtml(code)+'\')">Copia e invia su WhatsApp 📲</button>';
+      $("ac-nome").value = ""; $("ac-quota").checked = false;
+      toast("Codice generato per "+nome, "ok");
+      renderAdminCodici();
+    });
+  });
+}
+
+function copyCode(code){
+  if(navigator.clipboard){ navigator.clipboard.writeText(code).then(function(){ toast("Codice copiato 📋", "ok"); }); }
+  else toast(code, "info");
+}
+function deleteCode(key){
+  if(!confirm("Eliminare questo codice invito non usato?")) return;
+  db.ref("inviteCodes/"+key).remove().then(function(){ toast("Codice eliminato", "ok"); renderAdminCodici(); });
+}
+
+/* --- Gestione eventi (CRUD) --- */
+function renderAdminEventi(){
+  var pane = $("pane-eventi");
+  var html = ''
+    + '<div class="card">'
+    +   '<h3>Nuovo evento</h3>'
+    +   '<label for="ae-nome">Nome / descrizione</label>'
+    +   '<input id="ae-nome" placeholder="Es. Lo sposo piange durante i voti">'
+    +   '<label for="ae-cat">Categoria</label>'
+    +   '<input id="ae-cat" placeholder="Es. Cerimonia" list="cat-list">'
+    +   '<datalist id="cat-list">'+Object.keys(CAT_EMOJI).map(function(c){return '<option value="'+c+'">';}).join("")+'</datalist>'
+    +   '<div class="form-row">'
+    +     '<div><label for="ae-prezzo">Prezzo (crediti)</label><input id="ae-prezzo" type="number" min="1" step="1"></div>'
+    +     '<div><label for="ae-quota">Quota (x)</label><input id="ae-quota" type="number" min="1" step="0.5"></div>'
+    +   '</div>'
+    +   '<div class="field-err" id="ae-err"></div>'
+    +   '<button class="btn" onclick="createEvent()">Aggiungi evento ➕</button>'
+    + '</div>'
+    + '<div class="section-title"><span>Eventi</span><span class="line"></span></div>'
+    + '<div id="ae-list"></div>';
+  pane.innerHTML = html;
+
+  var ids = Object.keys(STATE.events);
+  if(ids.length === 0){ $("ae-list").innerHTML = '<div class="empty">Nessun evento. Aggiungi il primo.</div>'; return; }
+  ids.sort(function(a,b){ return (STATE.events[a].nome||"").localeCompare(STATE.events[b].nome||""); });
+  var lh = "";
+  ids.forEach(function(id){
+    var ev = STATE.events[id];
+    var locked = ev.stato !== STATO.DISP; // prezzo/quota bloccati se acquistato
+    lh += ''
+      + '<div class="list-item">'
+      +   '<div class="li-title">'+catEmoji(ev.categoria)+' '+escapeHtml(ev.nome)+'</div>'
+      +   '<div class="li-meta">'+escapeHtml(ev.categoria||"—")+' · 💰 '+ev.prezzo+' · ✨ x'+ev.quota+' · <b>'+ev.stato+'</b></div>'
+      +   '<div class="li-actions">'
+      +     (locked ? '<span class="muted" style="font-size:.78rem">prezzo/quota bloccati (venduto)</span>'
+                    : '<button class="btn small ghost" onclick="editEvent(\''+id+'\')">Modifica</button>'
+                      +'<button class="btn small danger" onclick="deleteEvent(\''+id+'\')">Elimina</button>')
+      +   '</div>'
+      + '</div>';
+  });
+  $("ae-list").innerHTML = lh;
+}
+
+function createEvent(){
+  var nome = $("ae-nome").value.trim();
+  var cat = $("ae-cat").value.trim();
+  var prezzo = parseFloat($("ae-prezzo").value);
+  var quota = parseFloat($("ae-quota").value);
+  $("ae-err").textContent = "";
+  if(!nome){ $("ae-err").textContent = "Inserisci il nome dell'evento."; return; }
+  if(isNaN(prezzo) || prezzo <= 0){ $("ae-err").textContent = "Prezzo non valido."; return; }
+  if(isNaN(quota) || quota <= 0){ $("ae-err").textContent = "Quota non valida."; return; }
+  var ev = {
+    nome: nome, categoria: cat || "Generico", prezzo: prezzo, quota: quota,
+    stato: STATO.DISP, acquistatoDa: null, prezzoPagato: null, quotaBloccata: null,
+    timestampAcquisto: null, certificazioni: {}
+  };
+  db.ref("events").push(ev).then(function(){
+    toast("Evento aggiunto", "ok");
+    $("ae-nome").value=""; $("ae-cat").value=""; $("ae-prezzo").value=""; $("ae-quota").value="";
+    renderAdminEventi();
+  });
+}
+
+function editEvent(id){
+  var ev = STATE.events[id];
+  if(ev.stato !== STATO.DISP){ toast("Evento venduto: non modificabile", "err"); return; }
+  var nome = prompt("Nome evento:", ev.nome); if(nome === null) return;
+  var cat = prompt("Categoria:", ev.categoria); if(cat === null) return;
+  var prezzo = prompt("Prezzo (crediti):", ev.prezzo); if(prezzo === null) return;
+  var quota = prompt("Quota (x):", ev.quota); if(quota === null) return;
+  prezzo = parseFloat(prezzo); quota = parseFloat(quota);
+  if(!nome.trim() || isNaN(prezzo) || prezzo<=0 || isNaN(quota) || quota<=0){ toast("Valori non validi", "err"); return; }
+  db.ref("events/"+id).update({ nome:nome.trim(), categoria:cat.trim()||"Generico", prezzo:prezzo, quota:quota })
+    .then(function(){ toast("Evento aggiornato", "ok"); renderAdminEventi(); });
+}
+
+function deleteEvent(id){
+  var ev = STATE.events[id];
+  if(ev.stato !== STATO.DISP){ toast("Evento venduto: non eliminabile", "err"); return; }
+  if(!confirm('Eliminare "'+ev.nome+'"?')) return;
+  db.ref("events/"+id).remove().then(function(){ toast("Evento eliminato", "ok"); renderAdminEventi(); });
+}
+
+/* --- Certificazioni / marcature --- */
+function renderAdminCertif(){
+  var pane = $("pane-certif");
+  var ids = Object.keys(STATE.events).filter(function(id){ return STATE.events[id].acquistatoDa; });
+  if(ids.length === 0){ pane.innerHTML = '<div class="empty">Nessun evento acquistato da gestire.</div>'; return; }
+  ids.sort(function(a,b){ return (STATE.events[a].nome||"").localeCompare(STATE.events[b].nome||""); });
+  var html = "<p class='muted'>Puoi forzare/annullare lo stato \"avvenuto\" bypassando le certificazioni.</p>";
+  ids.forEach(function(id){
+    var ev = STATE.events[id];
+    var nCert = ev.certificazioni ? Object.keys(ev.certificazioni).length : 0;
+    var who = STATE.users[ev.acquistatoDa] ? STATE.users[ev.acquistatoDa].nome : "—";
+    html += ''
+      + '<div class="list-item">'
+      +   '<div class="li-title">'+catEmoji(ev.categoria)+' '+escapeHtml(ev.nome)+'</div>'
+      +   '<div class="li-meta">👤 '+escapeHtml(who)+' · certificazioni: <b>'+nCert+'/'+STATE.settings.sogliaCertificazioni+'</b> · stato: <b>'+ev.stato+'</b></div>'
+      +   '<div class="li-actions">'
+      +     (ev.stato === STATO.AVV
+              ? '<button class="btn small danger" onclick="adminSetOccurred(\''+id+'\',false)">Annulla "avvenuto"</button>'
+              : '<button class="btn small" onclick="adminSetOccurred(\''+id+'\',true)">Marca avvenuto ✅</button>')
+      +     '<button class="btn small danger" onclick="adminCancelPurchase(\''+id+'\')">Annulla acquisto (rimborsa)</button>'
+      +   '</div>'
+      + '</div>';
+  });
+  pane.innerHTML = html;
+}
+
+function adminSetOccurred(id, occurred){
+  var ev = STATE.events[id];
+  if(occurred){
+    db.ref("events/"+id).update({ stato: STATO.AVV }).then(function(){ toast("Evento marcato avvenuto ✅", "ok"); renderAdminCertif(); });
+  } else {
+    if(!confirm("Annullare la marcatura? I punti verranno tolti e le certificazioni azzerate.")) return;
+    db.ref("events/"+id).update({ stato: STATO.ACQ, certificazioni: {} }).then(function(){ toast("Marcatura annullata", "ok"); renderAdminCertif(); });
+  }
+}
+
+function adminCancelPurchase(id){
+  var ev = STATE.events[id];
+  if(!ev.acquistatoDa){ toast("Evento non acquistato", "err"); return; }
+  if(!confirm('Annullare l\'acquisto di "'+ev.nome+'"? Il credito ('+ev.prezzoPagato+') verrà rimborsato a '+(STATE.users[ev.acquistatoDa]?STATE.users[ev.acquistatoDa].nome:"?")+'.')) return;
+  var buyer = ev.acquistatoDa, refund = ev.prezzoPagato || 0;
+  // rimborsa crediti
+  db.ref("users/"+buyer+"/creditiResidui").transaction(function(c){ return (c||0) + refund; }, function(){
+    // libera evento
+    db.ref("events/"+id).update({
+      stato: STATO.DISP, acquistatoDa: null, prezzoPagato: null, quotaBloccata: null,
+      timestampAcquisto: null, certificazioni: {}
+    }).then(function(){ toast("Acquisto annullato e credito rimborsato", "ok"); renderAdminCertif(); });
+  });
+}
+
+/* --- Quote e pagamenti --- */
+function renderAdminQuote(){
+  var pane = $("pane-quote");
+  pane.innerHTML = '<p class="muted">Stato quote versate (dai codici invito).</p><div id="aq-list"><div class="empty">Caricamento…</div></div>';
+  db.ref("inviteCodes").once("value").then(function(snap){
+    var codes = snap.val() || {};
+    var keys = Object.keys(codes);
+    if(keys.length === 0){ $("aq-list").innerHTML = '<div class="empty">Nessun codice/quota registrato.</div>'; return; }
+    var nPag = 0;
+    keys.forEach(function(k){ if(codes[k].quotaVersata) nPag++; });
+    var totale = STATE.settings.quotaIscrizione * nPag;
+    var html = '<div class="card"><h3>💶 Montepremio attuale: '+totale+' €</h3><div class="muted">'+nPag+' quote versate × '+STATE.settings.quotaIscrizione+' €</div></div>';
+    keys.sort(function(a,b){ return (codes[a].nomeDestinatario||"").localeCompare(codes[b].nomeDestinatario||""); });
+    keys.forEach(function(k){
+      var c = codes[k];
+      html += ''
+        + '<div class="list-item">'
+        +   '<div class="li-title">'+escapeHtml(c.nomeDestinatario)+'</div>'
+        +   '<div class="li-meta">'+(c.quotaVersata?'<span class="pill paid">versata ✔</span>':'<span class="pill unpaid">non versata</span>')
+        +     ' · '+(c.usato?'<span class="pill used">registrato</span>':'<span class="pill free">non registrato</span>')+'</div>'
+        +   '<div class="li-actions">'
+        +     '<button class="btn small ghost" onclick="toggleQuota(\''+k+'\','+(!c.quotaVersata)+')">'+(c.quotaVersata?'Segna NON versata':'Segna versata')+'</button>'
+        +   '</div>'
+        + '</div>';
+    });
+    $("aq-list").innerHTML = html;
+  });
+}
+function toggleQuota(key, val){
+  db.ref("inviteCodes/"+key+"/quotaVersata").set(val).then(function(){ toast("Quota aggiornata", "ok"); renderAdminQuote(); });
+}
+
+/* --- Assegnazioni manuali (anche post-deadline) --- */
+function renderAdminAssegna(){
+  var pane = $("pane-assegna");
+  var availEvents = Object.keys(STATE.events).filter(function(id){ return STATE.events[id].stato === STATO.DISP; });
+  var parts = Object.keys(STATE.users).filter(function(uid){ return STATE.users[uid].ruolo === RUOLO.PART; });
+
+  var evOpts = availEvents.map(function(id){
+    var ev = STATE.events[id];
+    return '<option value="'+id+'">'+escapeHtml(ev.nome)+' (💰'+ev.prezzo+' ✨x'+ev.quota+')</option>';
+  }).join("");
+  var pOpts = parts.map(function(uid){
+    return '<option value="'+uid+'">'+escapeHtml(STATE.users[uid].nome)+' (💳'+STATE.users[uid].creditiResidui+')</option>';
+  }).join("");
+
+  pane.innerHTML = ''
+    + '<div class="card">'
+    +   '<h3>Assegna evento a partecipante</h3>'
+    +   '<p class="muted">Scala i crediti al prezzo di listino, come un acquisto normale. Funziona anche dopo la deadline.</p>'
+    +   '<label for="as-ev">Evento disponibile</label>'
+    +   '<select id="as-ev">'+(evOpts||'<option value="">— nessun evento disponibile —</option>')+'</select>'
+    +   '<label for="as-user">Partecipante</label>'
+    +   '<select id="as-user">'+(pOpts||'<option value="">— nessun partecipante —</option>')+'</select>'
+    +   '<div class="field-err" id="as-err"></div>'
+    +   '<button class="btn" onclick="adminAssign()" '+((availEvents.length&&parts.length)?'':'disabled')+'>Assegna 🎯</button>'
+    + '</div>';
+}
+
+function adminAssign(){
+  var eventId = $("as-ev").value;
+  var uid = $("as-user").value;
+  $("as-err").textContent = "";
+  if(!eventId || !uid){ $("as-err").textContent = "Seleziona evento e partecipante."; return; }
+  var ev = STATE.events[eventId];
+  var u = STATE.users[uid];
+  if(u.creditiResidui < ev.prezzo){ $("as-err").textContent = "Crediti insufficienti ("+u.creditiResidui+" < "+ev.prezzo+")."; return; }
+  if(!confirm('Assegnare "'+ev.nome+'" a '+u.nome+' per '+ev.prezzo+' crediti?')) return;
+
+  var evRef = db.ref("events/"+eventId);
+  evRef.transaction(function(cur){
+    if(cur === null || cur.stato !== STATO.DISP) return; // abort
+    cur.stato = STATO.ACQ; cur.acquistatoDa = uid;
+    cur.prezzoPagato = cur.prezzo; cur.quotaBloccata = cur.quota;
+    cur.timestampAcquisto = nowISO();
+    return cur;
+  }, function(err, committed){
+    if(!committed){ toast("Evento non più disponibile", "err"); return; }
+    db.ref("users/"+uid+"/creditiResidui").transaction(function(c){
+      if((c||0) < ev.prezzo) return; return (c||0) - ev.prezzo;
+    }, function(e2, ok2){
+      if(!ok2){
+        evRef.transaction(function(cur){ if(cur&&cur.acquistatoDa===uid){ cur.stato=STATO.DISP; cur.acquistatoDa=null; cur.prezzoPagato=null; cur.quotaBloccata=null; cur.timestampAcquisto=null; } return cur; });
+        toast("Crediti insufficienti", "err");
+      } else { toast("Assegnato a "+u.nome+" 🎯", "ok"); renderAdminAssegna(); }
+    });
+  });
+}
+
+/* --- Impostazioni --- */
+function renderAdminSettings(){
+  var s = STATE.settings;
+  var perc = s.percentualiMontepremio || DEFAULT_SETTINGS.percentualiMontepremio;
+  var toLocalInput = function(iso){
+    if(!iso) return "";
+    var d = new Date(iso); if(isNaN(d)) return "";
+    var pad = function(n){ return String(n).padStart(2,"0"); };
+    return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+"T"+pad(d.getHours())+":"+pad(d.getMinutes());
+  };
+  $("pane-settings").innerHTML = ''
+    + '<div class="card">'
+    +   '<h3>Parametri di sistema</h3>'
+    +   '<label for="st-apertura">📅 Apertura asta</label>'
+    +   '<input id="st-apertura" type="datetime-local" value="'+toLocalInput(s.dataAperturaAsta)+'">'
+    +   '<label for="st-deadline">⏱️ Deadline acquisti</label>'
+    +   '<input id="st-deadline" type="datetime-local" value="'+toLocalInput(s.deadlineAcquisti)+'">'
+    +   '<div class="form-row">'
+    +     '<div><label for="st-crediti">Crediti iniziali</label><input id="st-crediti" type="number" min="0" value="'+s.creditiIniziali+'"></div>'
+    +     '<div><label for="st-quota">Quota (€)</label><input id="st-quota" type="number" min="0" value="'+s.quotaIscrizione+'"></div>'
+    +   '</div>'
+    +   '<label>🏆 Percentuali montepremio (1°/2°/3°)</label>'
+    +   '<div class="form-row">'
+    +     '<div><input id="st-p1" type="number" min="0" max="100" value="'+perc.primo+'"></div>'
+    +     '<div><input id="st-p2" type="number" min="0" max="100" value="'+perc.secondo+'"></div>'
+    +     '<div><input id="st-p3" type="number" min="0" max="100" value="'+perc.terzo+'"></div>'
+    +   '</div>'
+    +   '<label for="st-soglia">✅ Soglia certificazioni</label>'
+    +   '<input id="st-soglia" type="number" min="1" value="'+s.sogliaCertificazioni+'">'
+    +   '<div class="field-err" id="st-err"></div>'
+    +   '<button class="btn" onclick="saveSettings()">Salva impostazioni 💾</button>'
+    + '</div>'
+    + '<div class="card"><h3>⚠️ Nota crediti iniziali</h3><p class="muted">Modificare i crediti iniziali <b>non</b> ritocca chi è già iscritto: vale solo per le registrazioni successive.</p></div>';
+}
+
+function saveSettings(){
+  $("st-err").textContent = "";
+  var apertura = $("st-apertura").value;
+  var deadline = $("st-deadline").value;
+  var crediti = parseInt($("st-crediti").value, 10);
+  var quota = parseFloat($("st-quota").value);
+  var p1 = parseInt($("st-p1").value,10), p2 = parseInt($("st-p2").value,10), p3 = parseInt($("st-p3").value,10);
+  var soglia = parseInt($("st-soglia").value, 10);
+
+  if(isNaN(crediti)||crediti<0){ $("st-err").textContent="Crediti non validi."; return; }
+  if(isNaN(quota)||quota<0){ $("st-err").textContent="Quota non valida."; return; }
+  if(isNaN(soglia)||soglia<1){ $("st-err").textContent="Soglia non valida."; return; }
+  if((p1+p2+p3) !== 100){ $("st-err").textContent="Le percentuali montepremio devono sommare a 100 (ora "+(p1+p2+p3)+")."; return; }
+
+  var toISO = function(local){ return local ? new Date(local).toISOString() : null; };
+  var upd = {
+    dataAperturaAsta: toISO(apertura),
+    deadlineAcquisti: toISO(deadline) || DEFAULT_SETTINGS.deadlineAcquisti,
+    dataMatrimonio: STATE.settings.dataMatrimonio || DEFAULT_SETTINGS.dataMatrimonio,
+    creditiIniziali: crediti,
+    quotaIscrizione: quota,
+    percentualiMontepremio: { primo:p1, secondo:p2, terzo:p3 },
+    sogliaCertificazioni: soglia
+  };
+  db.ref("settings").update(upd).then(function(){ toast("Impostazioni salvate 💾", "ok"); });
+}
+
+/* =========================================================
+   CERTIFICAZIONE (lato partecipante) — via card "Le mie scommesse"?
+   Nota: la certificazione la fa il partecipante dal marketplace/mybets.
+   Aggiunta pulsante "Certifica" sugli eventi acquistati non propri.
+   ========================================================= */
+function certifyEvent(eventId){
+  var uid = STATE.session.userId;
+  db.ref("events/"+eventId).transaction(function(cur){
+    if(cur === null) return;
+    if(cur.stato === STATO.AVV) return;          // già avvenuto
+    if(cur.acquistatoDa === uid) return;          // proprietario escluso
+    cur.certificazioni = cur.certificazioni || {};
+    if(cur.certificazioni[uid]) return;           // già certificato
+    cur.certificazioni[uid] = nowISO();
+    var cnt = Object.keys(cur.certificazioni).length;
+    if(cnt >= (STATE.settings.sogliaCertificazioni || 3)) cur.stato = STATO.AVV;
+    return cur;
+  }, function(err, committed){
+    if(err){ toast("Errore, riprova", "err"); return; }
+    if(!committed){ toast("Non puoi certificare questo evento", "err"); return; }
+    toast("Certificazione registrata ✅", "ok");
+  });
+}
+
+/* =========================================================
+   AVVIO
+   ========================================================= */
+window.addEventListener("DOMContentLoaded", boot);
+</script>
+</body>
+</html>
