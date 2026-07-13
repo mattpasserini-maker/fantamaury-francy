@@ -710,29 +710,34 @@ function doRegister(){
     // 2. crea id utente e hash password
     var newUserId = db.ref("users").push().key;
     sha256(pass).then(function(hash){
-      // 3. consuma il codice in modo atomico (evita doppio uso)
-      db.ref("inviteCodes/" + codeKey).transaction(function(cur){
-        if(cur === null) return;
-        if(cur.usato) return; // abort
-        cur.usato = true;
-        cur.usatoDa = newUserId;
-        cur.timestampUtilizzo = nowISO();
-        return cur;
-      }, function(err, committed){
-        if(err){ $("rg-err").textContent = "Errore, riprova."; return; }
-        if(!committed){ $("rg-err").textContent = "Codice appena usato da un altro. Contatta Matteo."; return; }
-        // 4. crea l'utente
-        var u = {
-          nome: nome,
-          passwordHash: hash,
-          creditiResidui: STATE.settings.creditiIniziali,
-          ruolo: RUOLO.PART,
-          timestampReg: nowISO()
-        };
-        db.ref("users/" + newUserId).set(u).then(function(){
-          saveSession({ userId: newUserId, nome: nome, ruolo: RUOLO.PART });
-          toast("Benvenuto/a, " + nome + "! 🎉", "ok");
-          enterApp();
+      // 3. consuma il codice in modo atomico (evita doppio uso).
+      //    Prima "scaldo" il nodo con once(): senza cache locale la prima
+      //    passata ottimistica della transazione riceverebbe null e abortirebbe.
+      var codeRef = db.ref("inviteCodes/" + codeKey);
+      codeRef.once("value").then(function(){
+        codeRef.transaction(function(cur){
+          if(cur === null) return;   // codice inesistente → abort
+          if(cur.usato) return;      // già usato → abort
+          cur.usato = true;
+          cur.usatoDa = newUserId;
+          cur.timestampUtilizzo = nowISO();
+          return cur;
+        }, function(err, committed){
+          if(err){ $("rg-err").textContent = "Errore, riprova."; return; }
+          if(!committed){ $("rg-err").textContent = "Codice già in uso da un'altra registrazione. Riprova."; return; }
+          // 4. crea l'utente
+          var u = {
+            nome: nome,
+            passwordHash: hash,
+            creditiResidui: STATE.settings.creditiIniziali,
+            ruolo: RUOLO.PART,
+            timestampReg: nowISO()
+          };
+          db.ref("users/" + newUserId).set(u).then(function(){
+            saveSession({ userId: newUserId, nome: nome, ruolo: RUOLO.PART });
+            toast("Benvenuto/a, " + nome + "! 🎉", "ok");
+            enterApp();
+          });
         });
       });
     });
