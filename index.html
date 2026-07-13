@@ -134,7 +134,6 @@
     color: var(--text);
   }
   .badge.price { background: var(--gold); }
-  .badge.mult  { background: var(--accent); }
   .badge.state { background: var(--card-alt); color: var(--text-soft); font-weight: 600; }
   .badge.state.done { background: var(--success-text); color: #fff; }
 
@@ -419,7 +418,7 @@
       </section>
 
       <footer class="app-footer">
-        Versione: 1.1 | Aggiornato: 13/07/2026 | Autore: Matteo Passerini
+        Versione: 1.2 | Aggiornato: 14/07/2026 | Autore: Matteo Passerini
       </footer>
     </main>
 
@@ -914,7 +913,6 @@ function renderMarketplace(){
       +   '<div class="event-name">'+escapeHtml(ev.nome)+'</div>'
       +   '<div class="badges-row">'
       +     '<span class="badge price">💰 '+ev.prezzo+'</span>'
-      +     '<span class="badge mult">✨ x'+ev.quota+'</span>'
       +     stateBadge
       +     certProgress
       +   '</div>'
@@ -930,7 +928,7 @@ function confirmPurchase(eventId){
   if(!ev) return;
   var u = STATE.users[STATE.session.userId];
   if(u.creditiResidui < ev.prezzo){ toast("Crediti insufficienti 💳", "err"); return; }
-  if(!confirm('Comprare "'+ev.nome+'" per '+ev.prezzo+' crediti (quota x'+ev.quota+')?')) return;
+  if(!confirm('Comprare "'+ev.nome+'" per '+ev.prezzo+' crediti?')) return;
   purchaseEvent(eventId);
 }
 
@@ -947,7 +945,6 @@ function purchaseEvent(eventId){
     cur.stato = STATO.ACQ;
     cur.acquistatoDa = uid;
     cur.prezzoPagato = cur.prezzo;
-    cur.quotaBloccata = cur.quota;
     cur.timestampAcquisto = nowISO();
     return cur;
   }, function(err, committed){
@@ -965,7 +962,7 @@ function purchaseEvent(eventId){
         evRef.transaction(function(cur){
           if(cur && cur.acquistatoDa === uid && cur.stato === STATO.ACQ){
             cur.stato = STATO.DISP; cur.acquistatoDa = null;
-            cur.prezzoPagato = null; cur.quotaBloccata = null; cur.timestampAcquisto = null;
+            cur.prezzoPagato = null; cur.timestampAcquisto = null;
           }
           return cur;
         });
@@ -982,10 +979,10 @@ function purchaseEvent(eventId){
    ========================================================= */
 function eventPoints(ev){
   if(ev.stato !== STATO.AVV) return 0;
-  return (ev.prezzoPagato || 0) * (ev.quotaBloccata || 0);
+  return ev.prezzoPagato || 0;
 }
 function eventPotential(ev){
-  return (ev.prezzoPagato || ev.prezzo || 0) * (ev.quotaBloccata || ev.quota || 0);
+  return ev.prezzoPagato || ev.prezzo || 0;
 }
 
 function renderMyBets(){
@@ -1007,7 +1004,7 @@ function renderMyBets(){
     myHtml += ''
       + '<div class="list-item">'
       +   '<div class="li-title">'+catEmoji(ev.categoria)+' '+escapeHtml(ev.nome)+'</div>'
-      +   '<div class="li-meta">💰 '+ev.prezzoPagato+' · ✨ x'+ev.quotaBloccata+' · '
+      +   '<div class="li-meta">💰 '+ev.prezzoPagato+' · '
       +     (ev.stato === STATO.AVV ? '<span class="pill paid">'+pts+'</span>' : '<span class="pill used">'+pts+'</span>')
       +   '</div>'
       + '</div>';
@@ -1024,7 +1021,7 @@ function renderMyBets(){
     allHtml += ''
       + '<div class="list-item">'
       +   '<div class="li-title">'+catEmoji(ev.categoria)+' '+escapeHtml(ev.nome)+'</div>'
-      +   '<div class="li-meta">👤 '+escapeHtml(who)+' · 💰 '+ev.prezzoPagato+' · ✨ x'+ev.quotaBloccata
+      +   '<div class="li-meta">👤 '+escapeHtml(who)+' · 💰 '+ev.prezzoPagato
       +     (ev.stato === STATO.AVV ? ' · <span class="pill paid">✅ avvenuto</span>' : '')+'</div>'
       + '</div>';
   });
@@ -1142,7 +1139,7 @@ function renderRules(){
     + '<p>Il giorno del matrimonio, quando un evento accade, le prove (foto/video) si condividono nella <b>chat WhatsApp dedicata</b>. Nell\'app, chiunque <i>tranne il proprietario</i> può certificare l\'evento. Alla <b>'+s.sogliaCertificazioni+'ª certificazione</b> da persone diverse, l\'evento diventa "avvenuto" e i punti scattano in automatico. L\'admin ha sempre l\'ultima parola.</p></div>'
 
     + '<div class="card rule-sec"><h3>🧮 Punti</h3>'
-    + '<p><b>Punti = prezzo pagato × quota dell\'evento</b>, assegnati solo quando l\'evento è "avvenuto". In caso di parità in classifica, vince chi ha speso meno crediti.</p></div>'
+    + '<p><b>Punti = crediti spesi sull\'evento</b>, assegnati solo quando l\'evento è "avvenuto". In caso di parità in classifica, vince chi ha speso meno crediti.</p></div>'
 
     + '<div class="card rule-sec"><h3>💶 Montepremio</h3>'
     + '<p>Quota d\'iscrizione: <b>'+s.quotaIscrizione+' €</b> a testa (versata fuori app). Il montepremio totale si divide tra i primi 3: <b>'+perc.primo+'% / '+perc.secondo+'% / '+perc.terzo+'%</b>. L\'erogazione avviene fuori app.</p></div>'
@@ -1277,12 +1274,9 @@ function renderAdminEventi(){
     +   '<label for="ae-cat">Categoria</label>'
     +   '<input id="ae-cat" placeholder="Es. Cerimonia" list="cat-list">'
     +   '<datalist id="cat-list">'+Object.keys(CAT_EMOJI).map(function(c){return '<option value="'+c+'">';}).join("")+'</datalist>'
-    +   '<div class="form-row">'
-    +     '<div><label for="ae-prezzo">Prezzo (crediti)</label><input id="ae-prezzo" type="number" min="1" step="1"></div>'
-    +     '<div><label for="ae-quota">Quota (x)</label><input id="ae-quota" type="number" min="1" step="0.5"></div>'
-    +   '</div>'
+    +   '<label for="ae-prezzo">Prezzo (crediti)</label><input id="ae-prezzo" type="number" min="1" step="1">'
     +   '<div class="field-err" id="ae-err"></div>'
-    +   '<button class="btn" onclick="createEvent()">Aggiungi evento ➕</button>'
+    +   '<button class="btn" onclick="addNewEvent()">Aggiungi evento ➕</button>'
     + '</div>'
     + '<div class="section-title"><span>Eventi</span><span class="line"></span></div>'
     + '<div id="ae-list"></div>';
@@ -1294,13 +1288,13 @@ function renderAdminEventi(){
   var lh = "";
   ids.forEach(function(id){
     var ev = STATE.events[id];
-    var locked = ev.stato !== STATO.DISP; // prezzo/quota bloccati se acquistato
+    var locked = ev.stato !== STATO.DISP; // prezzo bloccato se acquistato
     lh += ''
       + '<div class="list-item">'
       +   '<div class="li-title">'+catEmoji(ev.categoria)+' '+escapeHtml(ev.nome)+'</div>'
-      +   '<div class="li-meta">'+escapeHtml(ev.categoria||"—")+' · 💰 '+ev.prezzo+' · ✨ x'+ev.quota+' · <b>'+ev.stato+'</b></div>'
+      +   '<div class="li-meta">'+escapeHtml(ev.categoria||"—")+' · 💰 '+ev.prezzo+' · <b>'+ev.stato+'</b></div>'
       +   '<div class="li-actions">'
-      +     (locked ? '<span class="muted" style="font-size:.78rem">prezzo/quota bloccati (venduto)</span>'
+      +     (locked ? '<span class="muted" style="font-size:.78rem">prezzo bloccato (venduto)</span>'
                     : '<button class="btn small ghost" onclick="editEvent(\''+id+'\')">Modifica</button>'
                       +'<button class="btn small danger" onclick="deleteEvent(\''+id+'\')">Elimina</button>')
       +   '</div>'
@@ -1309,23 +1303,23 @@ function renderAdminEventi(){
   $("ae-list").innerHTML = lh;
 }
 
-function createEvent(){
+/* NB: non chiamarla "createEvent": negli onclick inline il nome
+   risolverebbe a document.createEvent (API DOM) e il bottone non farebbe nulla. */
+function addNewEvent(){
   var nome = $("ae-nome").value.trim();
   var cat = $("ae-cat").value.trim();
   var prezzo = parseFloat($("ae-prezzo").value);
-  var quota = parseFloat($("ae-quota").value);
   $("ae-err").textContent = "";
   if(!nome){ $("ae-err").textContent = "Inserisci il nome dell'evento."; return; }
   if(isNaN(prezzo) || prezzo <= 0){ $("ae-err").textContent = "Prezzo non valido."; return; }
-  if(isNaN(quota) || quota <= 0){ $("ae-err").textContent = "Quota non valida."; return; }
   var ev = {
-    nome: nome, categoria: cat || "Generico", prezzo: prezzo, quota: quota,
-    stato: STATO.DISP, acquistatoDa: null, prezzoPagato: null, quotaBloccata: null,
+    nome: nome, categoria: cat || "Generico", prezzo: prezzo,
+    stato: STATO.DISP, acquistatoDa: null, prezzoPagato: null,
     timestampAcquisto: null, certificazioni: {}
   };
   db.ref("events").push(ev).then(function(){
     toast("Evento aggiunto", "ok");
-    $("ae-nome").value=""; $("ae-cat").value=""; $("ae-prezzo").value=""; $("ae-quota").value="";
+    $("ae-nome").value=""; $("ae-cat").value=""; $("ae-prezzo").value="";
     renderAdminEventi();
   });
 }
@@ -1336,10 +1330,9 @@ function editEvent(id){
   var nome = prompt("Nome evento:", ev.nome); if(nome === null) return;
   var cat = prompt("Categoria:", ev.categoria); if(cat === null) return;
   var prezzo = prompt("Prezzo (crediti):", ev.prezzo); if(prezzo === null) return;
-  var quota = prompt("Quota (x):", ev.quota); if(quota === null) return;
-  prezzo = parseFloat(prezzo); quota = parseFloat(quota);
-  if(!nome.trim() || isNaN(prezzo) || prezzo<=0 || isNaN(quota) || quota<=0){ toast("Valori non validi", "err"); return; }
-  db.ref("events/"+id).update({ nome:nome.trim(), categoria:cat.trim()||"Generico", prezzo:prezzo, quota:quota })
+  prezzo = parseFloat(prezzo);
+  if(!nome.trim() || isNaN(prezzo) || prezzo<=0){ toast("Valori non validi", "err"); return; }
+  db.ref("events/"+id).update({ nome:nome.trim(), categoria:cat.trim()||"Generico", prezzo:prezzo })
     .then(function(){ toast("Evento aggiornato", "ok"); renderAdminEventi(); });
 }
 
@@ -1395,7 +1388,7 @@ function adminCancelPurchase(id){
   db.ref("users/"+buyer+"/creditiResidui").transaction(function(c){ return (c||0) + refund; }, function(){
     // libera evento
     db.ref("events/"+id).update({
-      stato: STATO.DISP, acquistatoDa: null, prezzoPagato: null, quotaBloccata: null,
+      stato: STATO.DISP, acquistatoDa: null, prezzoPagato: null,
       timestampAcquisto: null, certificazioni: {}
     }).then(function(){ toast("Acquisto annullato e credito rimborsato", "ok"); renderAdminCertif(); });
   });
@@ -1441,7 +1434,7 @@ function renderAdminAssegna(){
 
   var evOpts = availEvents.map(function(id){
     var ev = STATE.events[id];
-    return '<option value="'+id+'">'+escapeHtml(ev.nome)+' (💰'+ev.prezzo+' ✨x'+ev.quota+')</option>';
+    return '<option value="'+id+'">'+escapeHtml(ev.nome)+' (💰'+ev.prezzo+')</option>';
   }).join("");
   var pOpts = parts.map(function(uid){
     return '<option value="'+uid+'">'+escapeHtml(STATE.users[uid].nome)+' (💳'+STATE.users[uid].creditiResidui+')</option>';
@@ -1474,7 +1467,7 @@ function adminAssign(){
   evRef.transaction(function(cur){
     if(cur === null || cur.stato !== STATO.DISP) return; // abort
     cur.stato = STATO.ACQ; cur.acquistatoDa = uid;
-    cur.prezzoPagato = cur.prezzo; cur.quotaBloccata = cur.quota;
+    cur.prezzoPagato = cur.prezzo;
     cur.timestampAcquisto = nowISO();
     return cur;
   }, function(err, committed){
@@ -1483,7 +1476,7 @@ function adminAssign(){
       if((c||0) < ev.prezzo) return; return (c||0) - ev.prezzo;
     }, function(e2, ok2){
       if(!ok2){
-        evRef.transaction(function(cur){ if(cur&&cur.acquistatoDa===uid){ cur.stato=STATO.DISP; cur.acquistatoDa=null; cur.prezzoPagato=null; cur.quotaBloccata=null; cur.timestampAcquisto=null; } return cur; });
+        evRef.transaction(function(cur){ if(cur&&cur.acquistatoDa===uid){ cur.stato=STATO.DISP; cur.acquistatoDa=null; cur.prezzoPagato=null; cur.timestampAcquisto=null; } return cur; });
         toast("Crediti insufficienti", "err");
       } else { toast("Assegnato a "+u.nome+" 🎯", "ok"); renderAdminAssegna(); }
     });
@@ -1539,7 +1532,6 @@ function deleteUser(userId){
       updates['events/'+id+'/stato'] = STATO.DISP;
       updates['events/'+id+'/acquistatoDa'] = null;
       updates['events/'+id+'/prezzoPagato'] = null;
-      updates['events/'+id+'/quotaBloccata'] = null;
       updates['events/'+id+'/timestampAcquisto'] = null;
       updates['events/'+id+'/certificazioni'] = null;
     } else if(ev.certificazioni && ev.certificazioni[userId]){
